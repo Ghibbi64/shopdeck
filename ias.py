@@ -53,7 +53,7 @@ def soap():
         r = make_response(render_template("ias/register.xml", id=ds.consoleid, message=parsed['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ias:Register']['ias:MessageId'],time=int(round(time.time()*1000)), accountid=ds.id, devicetoken=ds.devicetoken, country=ds.country))
         r.headers.set("Content-Type", "text/xml; charset=utf-8")
         return r
-    if 'ias:Unregister' in parsed['SOAP-ENV:Envelope']['SOAP-ENV:Body']:
+    if 'ias:Unregister' in parsed['SOAP-ENV:Envelope']['SOAP-ENV:Body'] :
         try:
             ds = Client3DS.objects.get(consoleid=parsed['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ias:Unregister']['ias:DeviceId'])
         except ObjectDoesNotExist:

@@ -5,6 +5,8 @@ from shopdeckdb.models import *
 from django.core.exceptions import ObjectDoesNotExist
 import time, random, string, os
 from django.contrib.sessions.backends.db import SessionStore
+import time
+from lxml import etree
 
 print("API (Ninja) Starting Up")
 
@@ -18,7 +20,7 @@ def service_hosts(request):
 
 @csrf_exempt
 def country(request, country):
-   res = {"country_detail":{"region_code":"USA","max_cash":{"amount":"99999,00 Credit","currency":"CREDIT","raw_value":"99999"},"loyalty_system_available":False,"legal_payment_message_required":False,"legal_business_message_required":False,"tax_excluded_country":True,"tax_free_country":True,"prepaid_card_available":True,"credit_card_available":False,"credit_card_store_available":False,"jcb_security_code_available":False,"nfc_available":False,"coupon_available":False,"my_coupon_available":True,"price_format":{"positive_prefix":"","positive_suffix":" Credit","negative_prefix":"- ","negative_suffix":" Credit","formats":{"format":[{"value":"# ### ### ###,##","digit":"#"}],"pattern_id":"5"}},"default_timezone":"+00:00","eshop_available":True,"name":country,"iso_code":country,"default_language_code":"en","language_selectable":False}}
+   res = {"country_detail":{"region_code":"IT","max_cash":{"amount":"99999,00 Crediti","currency":"CREDIT","raw_value":"99999"},"loyalty_system_available":False,"legal_payment_message_required":False,"legal_business_message_required":False,"tax_excluded_country":True,"tax_free_country":True,"prepaid_card_available":True,"credit_card_available":False,"credit_card_store_available":False,"jcb_security_code_available":False,"nfc_available":False,"coupon_available":False,"my_coupon_available":True,"price_format":{"positive_prefix":"","positive_suffix":" Crediti","negative_prefix":"- ","negative_suffix":" Crediti","formats":{"format":[{"value":"# ### ### ###,##","digit":"#"}],"pattern_id":"5"}},"default_timezone":"+00:00","eshop_available":True,"name":country,"iso_code":country,"default_language_code":"en","language_selectable":False}}
    return JsonResponse(res)
 
 @csrf_exempt
@@ -57,7 +59,7 @@ def balance(request):
       ds = Client3DS.objects.get(consoleid=request.session["deviceid"])
    except:
       return JsonResponse({"error": {"code": "3010","message": "The connection to the server has\ntimed out due to user inactivity.\n\nPlease restart Nintendo eShop\nand try again."}}, status=400)
-   res = {"balance":{"amount":str(ds.balance)+",00 Credit","currency":"EUR","raw_value":str(ds.balance)}}
+   res = {"balance":{"amount":str(ds.balance)+",00 Crediti","currency":"EUR","raw_value":str(ds.balance)}}
    return JsonResponse(res)
 
 #This is due to how eShop servers handle my/wishlist/notice: its a empty json, even if you have wishlisted titles
@@ -75,7 +77,31 @@ def wishlist(request):
    wishlisted_titles = wishlistedTitle.objects.filter(owner=ds)
    wishlisted = []
    for title in wishlisted_titles:
-      wishlisted.append({"platform": {"name": title.title.platform.name, "id": title.title.platform.id, "device": "CTR", "category": title.title.genre.id}, "publisher": {"name": title.title.publisher.publisher_name, "id": title.title.publisher.id}, "display_genre": title.title.genre.name, "release_date_on_eshop": str(title.title.date), "release_date_on_original": str(title.title.date), "retail_sales": False, "eshop_sales": True, "in_app_purchase": title.title.in_app_purchase, "name": title.title.name, "id": title.title.id, "icon_url": title.title.icon_url, "banner_url": title.title.banner_url})
+      wishlisted.append({
+         "platform": {
+         "name": title.title.platform.name, 
+         "id": title.title.platform.id, 
+         "device": "CTR"}, 
+         "publisher": {
+         "name": title.title.publisher.publisher_name, 
+         "id": title.title.publisher.id}, 
+         "star_rating_info": {
+         "score": title.title.rating_score, 
+         "votes": title.title.number_of_votes, 
+         "star1": title.title.number_of_star1, 
+         "star2": title.title.number_of_star2, 
+         "star3": title.title.number_of_star3, 
+         "star4": title.title.number_of_star4, 
+         "star5": title.title.number_of_star5},
+         "release_date_on_eshop": str(title.title.date), 
+         "release_date_on_original": str(title.title.date), 
+         "retail_sales": False, 
+         "eshop_sales": True, 
+         "in_app_purchase": title.title.in_app_purchase, 
+         "name": title.title.name, 
+         "id": title.title.id, 
+         "icon_url": title.title.icon_url, 
+         "banner_url": title.title.banner_url})
    res = {"wishlist":{"wished_title":wishlisted,"total":len(wishlisted)}}
    return JsonResponse(res)
 
@@ -135,8 +161,17 @@ def online_price(request, country):
          if title.price == 0:
             titleprice = "Free"
          else:
-            titleprice = str(title.price)+" Credit"
-         titles.append({"title_id": int(ind_title), "eshop_sales_status": "onsale", "price": {"regular_price": {"amount": titleprice, "currency": "CREDIT", "raw_value": str(title.price), "id": 2172116800}}, "title_owned": is_title_owned})
+            titleprice = str(title.price)+" Crediti"
+         titles.append({
+            "title_id": int(ind_title), 
+            "eshop_sales_status": "onsale", 
+            "price": {
+            "regular_price": {
+            "amount": titleprice, 
+            "currency": "CREDITI", 
+            "raw_value": str(title.price), 
+            "id": 2172116800}}, 
+            "title_owned": is_title_owned})
       except ObjectDoesNotExist:
          return JsonResponse({"error": True})
    res = {"online_prices": {"online_price": titles}}
@@ -148,7 +183,33 @@ def ec_info(request, country, tid):
       title = Title.objects.get(id=tid)
    except:
       return JsonResponse({"error": True})
-   res = {"title_ec_info":{"title_id":title.tid,"content_size":title.size,"title_version":title.version,"disable_download":title.is_not_downloadable}}
+   res = {"title_ec_info":{
+   "title_id":title.tid,
+   "content_size":title.size,
+   "title_version":title.version,
+   "disable_download":title.is_not_downloadable}}
+   return JsonResponse(res)
+
+@csrf_exempt
+def ec_info_2(request, country, tid=None):
+   ns_uids = request.GET.getlist('ns_uid[]')
+   if ns_uids:
+      search_id = ns_uids[0]
+      try:
+         title = Title.objects.get(id=search_id)
+      except Title.DoesNotExist:
+         return JsonResponse({"error": True})
+   else:
+         return JsonResponse({"error": True})
+
+   res = {"title_ec_infos":{
+         "title_ec_info":[{
+            "title_id":title.tid,
+            "content_size":title.size,
+            "title_version":title.version,
+            "disable_download":title.is_not_downloadable}
+         ]
+   }}
    return JsonResponse(res)
 
 @csrf_exempt
@@ -196,7 +257,13 @@ def check_redeemable(request):
    if card.used:
       return JsonResponse({"error": {"code": "3101", "message": "This code is already used.\nSorry!"}}, status=400)
    if card.is_money:
-      res = {"redeemable_card": {"number": request.POST.get("card_number"),"cash": {"amount": card.content+" Credit","currency": "CREDIT","raw_value": card.content}}}
+      res = {
+      "redeemable_card": {
+      "number": request.POST.get("card_number"),
+      "cash": {
+      "amount": card.content+" Credit",
+      "currency": "CREDIT",
+      "raw_value": card.content}}}
       return JsonResponse(res)
    else:
       try:
@@ -205,7 +272,18 @@ def check_redeemable(request):
          return JsonResponse({"error": {"code": "5615", "message": "The corresponding title was not found.\nContact an administrator."}}, status=400)
       if request.POST.get("tin") != None:
          return JsonResponse({"error": {"code": "6969", "message": "This is a title download code.\nPlease use the right tool."}})
-      res = {"redeemable_card": {"number": request.POST.get("card_number"), "contents": {"content": [{"title": {"name": title.name, "id": title.id}}]},"title_ec_info": {"title_id": title.tid, "content_size": title.size, "title_version": title.version}}}
+      res = {
+      "redeemable_card": {
+      "number": request.POST.get("card_number"), 
+      "contents": {
+      "content": [{
+      "title": {
+      "name": title.name, 
+      "id": title.id}}]},
+      "title_ec_info": {
+      "title_id": title.tid, 
+      "content_size": title.size, 
+      "title_version": title.version}}}
       return JsonResponse(res)
    
 @csrf_exempt
@@ -214,7 +292,20 @@ def pretransac_redeem(request):
       ds = Client3DS.objects.get(consoleid=request.session["deviceid"])
    except:
       return JsonResponse({"error": {"code": "3010","message": "The connection to the server has\ntimed out due to user inactivity.\n\nPlease restart Nintendo eShop\nand try again."}}, status=400)
-   res = {"prereplenish_info": {"current_balance": {"amount": str(ds.balance)+" Credit", "currency": "CREDIT", "raw_value": str(ds.balance)},"replenish_amount": {"amount": str(request.GET.get("replenish_amount"))+" Credit", "currency": "CREDIT", "raw_value": str(request.GET.get("replenish_amount"))},"post_balance": {"amount": str(int(float(request.GET.get("replenish_amount")))+ds.balance)+" Credit", "currency": "CREDIT", "raw_value": str(int(float(request.GET.get("replenish_amount")))+ds.balance)}}}
+   res = {
+   "prereplenish_info": {
+   "current_balance": {
+   "amount": str(ds.balance)+" Credit", 
+   "currency": "CREDIT", 
+   "raw_value": str(ds.balance)},
+   "replenish_amount": {
+   "amount": str(request.GET.get("replenish_amount"))+" Credit", 
+   "currency": "CREDIT", 
+   "raw_value": str(request.GET.get("replenish_amount"))},
+   "post_balance": {
+   "amount": str(int(float(request.GET.get("replenish_amount")))+ds.balance)+" Credit", 
+   "currency": "CREDIT", 
+   "raw_value": str(int(float(request.GET.get("replenish_amount")))+ds.balance)}}}
    return JsonResponse(res)
 
 @csrf_exempt
@@ -230,8 +321,15 @@ def add_money_prepaid(request):
    if card.used:
       res = {"error": {"code": "4626", "message": "This code is already used.\nSorry!"}}
       return JsonResponse(res, status=400)
-   res = {"transaction_result": {"transaction_id": 1,"post_balance": {"amount": str(int(card.content)+ds.balance)+" Credit","currency": "CREDIT","raw_value": str(int(card.content)+ds.balance)},"integrated_account": True}}
-   card.used = True
+   res = {
+   "transaction_result": {
+   "transaction_id": 1,
+   "post_balance": {
+   "amount": str(int(card.content)+ds.balance)+" Credit",
+   "currency": "CREDIT",
+   "raw_value": str(int(card.content)+ds.balance)},
+   "integrated_account": True}}
+   card.used = False
    card.save()
    ds.balance = int(card.content)+ds.balance
    ds.save()
@@ -247,7 +345,41 @@ def prepurchase_info(request, country, tid):
       ds = Client3DS.objects.get(consoleid=request.session["deviceid"])
    except:
       return JsonResponse({"error": {"code": "3010","message": "The connection to the server has\ntimed out due to user inactivity.\n\nPlease restart Nintendo eShop\nand try again."}}, status=400)
-   res = {"prepurchase_info":{"tax_excluded":False,"purchasing_content":[{"eshop_sales_status":"onsale","content_size":title.size,"payment_amount":{"price":{"regular_price":{"amount":str(title.price)+",00 Credit","currency":"CREDIT","raw_value":str(title.price),"id":2172116800}},"total_amount":{"amount":str(title.price)+",00 Credit","currency":"CREDIT","raw_value":str(title.price)}}}],"current_balance":{"amount":str(ds.balance)+",00 Credit","currency":"CREDIT","raw_value":str(ds.balance)},"post_balance":{"amount":str(ds.balance-title.price)+",00 Credit","currency":"EUR","raw_value":str(ds.balance-title.price)},"total_amount":{"price":{"regular_price":{"amount":str(title.price)+",00 Credit","currency":"CREDIT","raw_value":str(title.price)}},"total_amount":{"amount":str(title.price)+",00 Credit","currency":"CREDIT","raw_value":str(title.price)}}}}
+   res = {
+   "prepurchase_info":{
+   "tax_excluded":False,
+   "purchasing_content":[{
+   "eshop_sales_status":"onsale",
+   "content_size":title.size,
+   "payment_amount":{
+   "price":{
+   "regular_price":{
+   "amount":str(title.price)+",00 Credit",
+   "currency":"CREDIT",
+   "raw_value":str(title.price),
+   "id":2172116800}},
+   "total_amount":{
+   "amount":str(title.price)+",00 Credit",
+   "currency":"CREDIT",
+   "raw_value":str(title.price)}}}],
+   "current_balance":{
+   "amount":str(ds.balance)+",00 Credit",
+   "currency":"CREDIT",
+   "raw_value":str(ds.balance)},
+   "post_balance":{
+   "amount":str(ds.balance-title.price)+",00 Credit",
+   "currency":"EUR",
+   "raw_value":str(ds.balance-title.price)},
+   "total_amount":{
+   "price":{
+   "regular_price":{
+   "amount":str(title.price)+",00 Credit",
+   "currency":"CREDIT",
+   "raw_value":str(title.price)}},
+   "total_amount":{
+   "amount":str(title.price)+",00 Credit",
+   "currency":"CREDIT",
+   "raw_value":str(title.price)}}}}
    return JsonResponse(res)
 
 @csrf_exempt
@@ -271,7 +403,17 @@ def purcahse_title(request, country, tid):
       ds.save()
       owned = ownedTitle.objects.create(title=title, ticketid=(b'\x00\x04'+ os.urandom(6)).hex(), version=title.version, owner=ds)
       owned.save()
-   res = {"transaction_result":{"transaction_id":1,"title_id":title.tid,"ticket_id":int(owned.ticketid, base=16),"post_balance":{"amount":str(ds.balance)+",00 Credit","currency":"CREDIT","raw_value":str(ds.balance)},"business_type":"NCL_DIST","integrated_account":True}}
+   res = {
+   "transaction_result":{
+   "transaction_id":1,
+   "title_id":title.tid,
+   "ticket_id":int(owned.ticketid, base=16),
+   "post_balance":{
+   "amount":str(ds.balance)+",00 Credit",
+   "currency":"CREDIT",
+   "raw_value":str(ds.balance)},
+   "business_type":"NCL_DIST",
+   "integrated_account":True}}
    return JsonResponse(res)
 
 @csrf_exempt
@@ -293,7 +435,17 @@ def purcahse_ticket(request, country, tid):
       ds.save()
       owned = ownedTicket.objects.create(item=aitem, ticketid=(b'\x00\x04'+ os.urandom(6)).hex(), owner=ds)
       owned.save()
-   res = {"transaction_results": {"transaction_result":[{"transaction_id":1,"title_id":aitem.title.tid,"ticket_id":int(owned.ticketid, base=16),"post_balance":{"amount":str(ds.balance)+",00 Credit","currency":"CREDIT","raw_value":str(ds.balance)},"integrated_account":True}]}}
+   res = {
+   "transaction_results": {
+   "transaction_result":[{
+   "transaction_id":1,
+   "title_id":aitem.title.tid,
+   "ticket_id":int(owned.ticketid, base=16),
+   "post_balance":{
+   "amount":str(ds.balance)+",00 Credit",
+   "currency":"CREDIT",
+   "raw_value":str(ds.balance)},
+   "integrated_account":True}]}}
    return JsonResponse(res)
 
 @csrf_exempt
@@ -302,7 +454,11 @@ def tax_location(request):
       ds = Client3DS.objects.get(consoleid=request.session["deviceid"])
    except:
       return JsonResponse({"error": {"code": "3010","message": "The connection to the server has\ntimed out due to user inactivity.\n\nPlease restart Nintendo eShop\nand try again."}}, status=400)
-   res = {"tax_location": {"state": "United States", "state_code": ds.country, "id": 71647}}
+   res = {
+   "tax_location": {
+   "state": "United States", 
+   "state_code": ds.country, 
+   "id": 71647}}
    return JsonResponse(res)
 
 @csrf_exempt
@@ -326,7 +482,17 @@ def redeem_title(request, country, tid):
    tikid = (b'\x00\x04'+ os.urandom(6)).hex()
    owned = ownedTitle.objects.create(title=title, version=title.version, ticketid=tikid, owner=ds)
    owned.save()
-   res = {"transaction_result":{"transaction_id":1,"title_id":title.tid,"ticket_id":int(tikid, base=16),"post_balance":{"amount":str(ds.balance)+",00 Credit","currency":"CREDIT","raw_value":str(ds.balance)},"business_type":"NCL_DIST","integrated_account":True}}
+   res = {
+   "transaction_result":{
+   "transaction_id":1,
+   "title_id":title.tid,
+   "ticket_id":int(tikid, base=16),
+   "post_balance":{
+   "amount":str(ds.balance)+",00 Credit",
+   "currency":"CREDIT",
+   "raw_value":str(ds.balance)},
+   "business_type":"NCL_DIST",
+   "integrated_account":True}}
    return JsonResponse(res)
 
 
@@ -384,13 +550,74 @@ def shared_titles(request):
    ownedtitles = ownedTitle.objects.filter(owner=ds)
    wishlisted = []
    for title in ownedtitles:
-      wishlisted.append({"platform": {"name": title.title.platform.name, "id": title.title.platform.id, "device": "CTR", "category": title.title.genre.id}, "publisher": {"name": title.title.publisher.publisher_name, "id": title.title.publisher.id}, "display_genre": title.title.genre.name, "release_date_on_eshop": str(title.title.date), "release_date_on_original": str(title.title.date), "retail_sales": False, "eshop_sales": True, "in_app_purchase": title.title.in_app_purchase, "name": title.title.name, "id": title.title.id, "icon_url": title.title.icon_url, "banner_url": title.title.banner_url})
-   res = {"owned_titles":{"owned_title":wishlisted,"total":len(wishlisted)}}
+      wishlisted.append({
+         "platform": {
+         "name": title.title.platform.name, 
+         "id": title.title.platform.id, 
+         "device": "CTR", 
+         "category": title.title.genre.id}, 
+         "publisher": {
+         "name": title.title.publisher.publisher_name, 
+         "id": title.title.publisher.id}, 
+         "display_genre": title.title.genre.name, 
+         "star_rating_info": {
+         "score": title.rating_score, 
+         "votes": title.number_of_votes, 
+         "star1": title.number_of_star1, 
+         "star2": title.number_of_star2, 
+         "star3": title.number_of_star3, 
+         "star4": title.number_of_star4, 
+         "star5": title.number_of_star5},
+         "release_date_on_eshop": str(title.title.date), 
+         "release_date_on_original": str(title.title.date), 
+         "retail_sales": False, 
+         "eshop_sales": True, 
+         "in_app_purchase": title.title.in_app_purchase, 
+         "name": title.title.name, 
+         "id": title.title.id, 
+         "icon_url": title.title.icon_url, 
+         "banner_url": title.title.banner_url})
+   res = {
+   "owned_titles":{
+   "owned_title":wishlisted,
+   "total":len(wishlisted)}}
    return JsonResponse(res)
 
 @csrf_exempt
 def id_pair(request):
-   return JsonResponse({"error": {"code": "6569", "message": "Due to technical limitations,\nthis functionnality is not available."}}, status=401)
+    if request.method != "GET":
+        return JsonResponse({"error": {"code": "405", "message": "Method not allowed"}}, status=405)
+
+    title_ids = request.GET.getlist("title_id[]")
+    if not title_ids:
+        return JsonResponse({"error": {"code": "400", "message": "Missing title_id[]"}}, status=400)
+
+    title_id_pairs = []
+
+    for tid in title_ids:
+        tid = tid.strip()
+        main_title = Title.objects.filter(tid=tid).first()
+
+        if main_title:
+            update_relation = title_updates.objects.filter(main_title=main_title).first()
+
+            if update_relation:
+                title_id_pairs.append({
+                    "ns_uid": update_relation.update_title.id,
+                    "title_id": main_title.tid,
+                    "type": "T"
+                })
+            else:
+                title_id_pairs.append({
+                    "ns_uid": main_title.id,
+                    "title_id": main_title.tid,
+                    "type": "T"
+                })
+
+    if not title_id_pairs:
+        return JsonResponse({"error": {"code": "6569", "message": "No updates found for the title(s), you can request updates for titles in the discord server"}}, status=404)
+
+    return JsonResponse({"title_id_pairs": {"title_id_pair": title_id_pairs}})
 
 @csrf_exempt
 def public_status(request, country):
@@ -404,63 +631,70 @@ def public_status(request, country):
       type = "PUBLIC"
    else:
       type = "PRIVATE"
-   res = {"title_public_status":{"public_status":type,"type":"T","ns_uid":title.id,"title_id":title.tid}}
+   res = {
+   "title_public_status":{
+   "public_status":type,
+   "type":"T",
+   "ns_uid":title.id,
+   "title_id":title.tid}}
    return JsonResponse(res)
 
 @csrf_exempt
 def votable_titles(request):
+    """
+    Returns the list of owned titles that can be voted on.
+    (Excludes update titles — those with TID starting with 0004000E)
+    """
     try:
         ds = Client3DS.objects.get(consoleid=request.session["deviceid"])
     except Client3DS.DoesNotExist:
-        return JsonResponse({"error": {"code": "3010","message": "The connection to the server has\ntimed out due to user inactivity.\n\nPlease restart Nintendo eShop\nand try again."}}, status=400)
+        return JsonResponse(
+            {"error": {
+                "code": "3010",
+                "message": "The connection to the server has timed out due to user inactivity.\n\nPlease restart Nintendo eShop and try again."
+            }},
+            status=400
+        )
 
+    # Owned titles
     owned_titles = ownedTitle.objects.filter(owner=ds)
 
+    # Exclude update titles (TIDs starting with 0004000E)
+    owned_titles = owned_titles.exclude(title__tid__startswith="0004000E")
+
+    # Exclude already voted titles
+    voted_ids = Vote.objects.filter(client=ds).values_list("voted_title_id", flat=True)
+    owned_titles = owned_titles.exclude(title_id__in=voted_ids)
+
     transactions = []
-    index = 1 
+    index = 1
     for owned_title in owned_titles:
+        title = owned_title.title
         transactions.append({
             "title": {
                 "platform": {
-                    "name": owned_title.title.platform.name,
-                    "id": owned_title.title.platform.id,
+                    "name": title.platform.name,
+                    "id": title.platform.id,
                     "device": "CTR",
                     "category": 8
                 },
                 "publisher": {
-                    "name": owned_title.title.publisher.publisher_name,
+                    "name": title.publisher.publisher_name,
                     "id": 1
                 },
-                "rating_info": {
-                    "rating_system": {
-                        "name": owned_title.title.parentalControl.parental_system_name,
-                        "id": owned_title.title.parentalControl.parental_system_id
-                    },
-                    "rating": {
-                        "icons": {
-                            "icon": [
-                                {"url": owned_title.title.parentalControl.icon_url_normal, "type": "normal"},
-                                {"url": owned_title.title.parentalControl.icon_url_small, "type": "small"}
-                            ]
-                        },
-                        "name": owned_title.title.parentalControl.age_name,
-                        "age": owned_title.title.parentalControl.age_number,
-                        "id": owned_title.title.parentalControl.id
-                    }
-                },
-                "release_date_on_eshop": str(owned_title.title.date),
-                "release_date_on_retail": str(owned_title.title.date),
+                "release_date_on_eshop": str(title.date),
+                "release_date_on_retail": str(title.date),
                 "retail_sales": False,
-                "eshop_sales": owned_title.title.is_not_downloadable,
-                "in_app_purchase": owned_title.title.in_app_purchase,
-                "name": "• "+owned_title.title.region.initial+" • "+"\n"+owned_title.title.name,
-                "id": owned_title.title.id,
-                "icon_url": owned_title.title.icon_url,
-                "banner_url": owned_title.title.banner_url
+                "eshop_sales": title.is_not_downloadable,
+                "in_app_purchase": title.in_app_purchase,
+                "name": "• " + title.name,
+                "id": title.id,
+                "icon_url": title.icon_url,
+                "banner_url": title.banner_url
             },
             "index": index
         })
-        index += 1  
+        index += 1
 
     res = {
         "contents": {
@@ -472,49 +706,124 @@ def votable_titles(request):
     }
 
     return JsonResponse(res)
-    
-#This Prob Need To Be Checked
+
+
 @csrf_exempt
-def vote(request):
+def votes_put(request):
+    """
+    Save a user's vote for a title.
+    """
     if request.method == 'POST':
         try:
             required_params = ['id', 'age', 'gender', 'q3', 'q4', 'q5']
             for param in required_params:
-                if param not in request.POST:
-                    return JsonResponse({"error": {"code": "400", "message": f"Missing required parameter: {param}"}}, status=400)
+                if request.POST.get(param) is None:
+                    return JsonResponse(
+                        {"error": {"code": "400", "message": f"Missing required parameter: {param}"}},
+                        status=400
+                    )
 
             ds = Client3DS.objects.get(consoleid=request.session.get("deviceid"))
-        except Client3DS.DoesNotExist:
-            return JsonResponse({"error": {"code": "3010", "message": "The connection to the server has timed out due to user inactivity. Please restart Nintendo eShop and try again."}}, status=400)
-        
-        try:
-            q4 = request.POST['q4'].lower() == 'true'
-            q5 = request.POST['q5'].lower() == 'true'
+            voted_title = Title.objects.filter(id=request.POST.get('id')).first()
+            if not voted_title:
+                return JsonResponse(
+                    {"error": {"code": "404", "message": "Title not found"}},
+                    status=404
+                )
 
-            voted_title = get_object_or_404(Title, id=request.POST['id'])
+            q4 = request.POST.get('q4', 'false').lower() in ['true', '1', 'yes']
+            q5 = request.POST.get('q5', 'false').lower() in ['true', '1', 'yes']
 
             vote = Vote.objects.create(
                 client=ds,
                 voted_title=voted_title,
-                age=request.POST['age'],
-                gender=request.POST['gender'],
-                q3=request.POST['q3'],
+                age=request.POST.get('age'),
+                gender=request.POST.get('gender'),
+                q3=request.POST.get('q3'),
                 q4=q4,
                 q5=q5
             )
-        except Exception as e:
-            return JsonResponse({"error": {"code": "500", "message": "Internal Server Error", "details": str(e)}}, status=500)
 
-        return JsonResponse({}, status=200)
+            return JsonResponse({"success": True, "vote_id": vote.id}, status=200)
+
+        except Client3DS.DoesNotExist:
+            return JsonResponse(
+                {"error": {"code": "3010", "message": "Session expired, restart eShop."}},
+                status=400
+            )
+        except Exception as e:
+            return JsonResponse(
+                {"error": {"code": "500", "message": "Internal Server Error", "details": str(e)}},
+                status=500
+            )
     else:
-        return JsonResponse({"error": {"code": "405", "message": "Method Not Allowed"}}, status=405)
+        return JsonResponse(
+            {"error": {"code": "405", "message": "Method Not Allowed"}},
+            status=405
+        )
+
+@csrf_exempt
+def votes_delete(request):
+    """
+    Delete a vote by ID (like Nintendo's !delete).
+    Example URL: /my/votes/!delete?shop_id=1&_type=json&id=123
+    """
+    vote_id = request.GET.get("id")
+    if not vote_id:
+        return JsonResponse({"error": {"code": "400", "message": "Missing vote ID"}}, status=400)
+
+    try:
+        ds = Client3DS.objects.get(consoleid=request.session.get("deviceid"))
+    except Client3DS.DoesNotExist:
+        return JsonResponse({"error": {"code": "3010", "message": "Session expired."}}, status=400)
+
+    try:
+        vote = Vote.objects.get(id=vote_id, client=ds)
+        vote.delete()
+        return JsonResponse({"success": True})
+    except Vote.DoesNotExist:
+        return JsonResponse({"error": {"code": "404", "message": "Vote not found"}}, status=404)
 
 @csrf_exempt
 def votes(request):
+    """
+    Returns all votes for the logged-in Client3DS in Nintendo-compatible format.
+    """
     try:
-        ds = Client3DS.objects.get(consoleid=request.POST.get("device_id"))
-    except:
-        return JsonResponse({"error": {"code": "3010", "message": "W.i.P"}}, status=400)
+        ds = Client3DS.objects.get(consoleid=request.session.get("deviceid"))
+    except Client3DS.DoesNotExist:
+        return JsonResponse({
+            "error": {"code": "3010", "message": "Session expired. Restart eShop."}
+        }, status=400)
+
+    votes_qs = Vote.objects.filter(client=ds).select_related("voted_title")
+    vote_list = []
+
+    for index, v in enumerate(votes_qs, start=1):
+        vote_list.append({
+            "title": {
+                "name": v.voted_title.name if v.voted_title else "",
+                "icon_url": v.voted_title.icon_url if v.voted_title else "",
+                "id": v.voted_title.id if v.voted_title else 0
+            },
+            "q1": bool(v.q1) if hasattr(v, "q1") else False,
+            "q2": int(v.q2) if hasattr(v, "q2") else 0,
+            "q3": int(v.q3) if hasattr(v, "q3") else 0,
+            "q4": bool(v.q4),
+            "q5": bool(v.q5),
+            "index": index
+        })
+
+    res = {
+        "votes": {
+            "vote": vote_list,
+            "length": len(vote_list),
+            "offset": 0,
+            "total": len(vote_list)
+        }
+    }
+
+    return JsonResponse(res)
 
 @csrf_exempt
 def current_raw(request):
@@ -524,3 +833,5 @@ def current_raw(request):
       #If it does not work, placeholder. This is due to chunkencoding. Fuck it :(
       return HttpResponse(str(0))
    return HttpResponse(str(ds.balance))
+
+# Aggiunte mie - Ghibbi64

@@ -1,4 +1,5 @@
 from django.urls import path
+from django.urls import path
 
 from . import views
 
@@ -19,5 +20,6 @@ urlpatterns = [
     path('titles', views.titles, name="titles"),
     path('movies', views.movies_content, name="movies"),
     path('rankings', views.rankings, name="rankings"),
-    path('ranking/<int:rid>', views.ranking, name="ranking")
+    path('ranking/<int:rid>', views.ranking, name="ranking"),
+    path('rating_info/<int:id>_<str:lang>.layout', views.rating_info, name="rating_info"),
 ]

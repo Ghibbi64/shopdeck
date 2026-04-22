@@ -167,7 +167,8 @@ def soap():
         try:
             aitem = item.objects.get(id=parsed['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ecs:GetTaxes']['ecs:Items'])
         except ObjectDoesNotExist:
-            return "Error"
+            print(parsed['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ecs:GetTaxes']['ecs:Items'])
+            return "Error2"
         r = make_response(render_template("ecs/getTaxes.xml", id=ds.consoleid, message=parsed['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ecs:GetTaxes']['ecs:MessageId'],time=int(round(time.time()*1000)), country=ds.country, itemid=aitem.id, itemprice=aitem.price))
         r.headers.set("Content-Type", "text/xml; charset=utf-8")
         return r

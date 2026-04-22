@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 '''
 API & Metadata server
-Made by Let's Shop! 2024
+Made by Let's Shop 2024 (now mantained by Ghibbi64)
 '''
 import os
 import sys
 
-print("Shopdeck Server - API & Web Portal\n\nBy Let's Shop Team 2024")
+print("Shopdeck Server - API & Web Portal\n\nBy Let's Shop Team 2024 & Ghibbi64\n\n\n")
 print("----------------------------------")
 def main():
     """Run administrative tasks."""

@@ -14,5 +14,7 @@ urlpatterns = [
     path('ecommerce/current', views.current_balance, name="current"),
     path('ecommerce/add', views.add_balance, name="add_balance"),
     path('downloaded', views.downloaded, name="downloaded"),
-    path('search', views.search, name="search")
+    path('titles/', views.all_titles, name='all_titles'),
+    path('search', views.search, name="search"),
+    path('random_title/', views.random_title, name='random_title'),
 ]

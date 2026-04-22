@@ -32,12 +32,12 @@ def soap():
         try:
             title = Title.objects.get(tid=parsed['SOAP-ENV:Envelope']['SOAP-ENV:Body']['cas:ListItems']['cas:TitleId'])
         except ObjectDoesNotExist:
-            return "Error"
+            return "Error1"
         try:
             if parsed['SOAP-ENV:Envelope']['SOAP-ENV:Body']['cas:ListItems']['cas:AttributeFilters'][3]["cas:Name"] == "sys.ItemCode":
                 itemcode = parsed['SOAP-ENV:Envelope']['SOAP-ENV:Body']['cas:ListItems']['cas:AttributeFilters'][3]["cas:Value"]
             else:
-                return "Error"
+                return "Error2"
             selitem = True
         except IndexError:
             selitem = False

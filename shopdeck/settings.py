@@ -20,19 +20,38 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1o&xlvoqsao=6i#h0kg6)n8xnte8%x7#ll7n4ky8ppgbo!=0bu'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+X_FRAME_OPTIONS = "ALLOWED_HOSTS"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'django.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'admin_interface',
-    'colorfield',
+    'jazzmin',
     'shopdeckdb.apps.ShopdeckdbConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -130,7 +149,7 @@ SOAP_URL = "soap.example.com"
 METADATA_API_URL = "api.example.com"
 
 # TOS
-TOS_ESHOP = "This is YOUR own custom shop!\nStart customizing it!\n(change this message in shopdeck/settings.py)"
+TOS_ESHOP = "Hi this is a Term of Service example, edit me!"
 
 #Maintenance Message
 MAINTENANCE_MSG = "Maintenance message."
@@ -151,3 +170,9 @@ STATICFILES_DIRS = [
 ]
 
 AUTH_USER_MODEL = "shopdeckdb.User" 
+
+JAZZMIN_SETTINGS = {
+    "site_header": "Shopdeck",
+    "site_brand": "Shopdeck",
+    "site_title": "Shopdeck",
+}

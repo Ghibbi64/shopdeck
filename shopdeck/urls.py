@@ -24,4 +24,5 @@ urlpatterns = [
     path('', include('webui.urls')),
     path('ninja/ws/', include('api.urls')),
     path('samurai/ws/<str:region>/', include('metadata.urls')),
+    path('samurai/layout/', include('metadata.urls')),
 ]

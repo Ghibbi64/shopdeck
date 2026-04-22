@@ -18,28 +18,65 @@ def index(request):
         if title.title.version > title.version:
             titles.append(title)
     updates = len(titles)
-    recent = Title.objects.filter(public=True).order_by('-date')[0:5]
-    random = Title.objects.filter(public=True).order_by('?')[0:5]
+    recent = Title.objects.filter(public=True).order_by('-date')[0:6]
+    random = Title.objects.filter(public=True).order_by('?')[0:3]
     return render(request, "index.html", {"title": "Home", "WEBUI_NAME": WEBUI_NAME, "user": request.user, "updates": updates, "random": random, "recent": recent})
 
+def all_titles(request):
+    sort_option = request.GET.get('sort')
+
+    if sort_option == 'name_asc':
+        titles = Title.objects.filter(public=True).order_by('name')
+    elif sort_option == 'name_desc':
+        titles = Title.objects.filter(public=True).order_by('-name')
+    elif sort_option == 'date_asc':
+        titles = Title.objects.filter(public=True).order_by('date')
+    elif sort_option == 'date_desc':
+        titles = Title.objects.filter(public=True).order_by('-date')
+    else:
+        titles = Title.objects.filter(public=True).order_by('-date')
+
+    # Count the total number of titles
+    total_titles = titles.count()
+
+    return render(request, "all_titles.html", {"titles": titles, "total_titles": total_titles, "title": "All Titles", "WEBUI_NAME": WEBUI_NAME})
+
 def title(request, tid):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect("/login") # Redirect to login page if user is not logged in
+
     owned = ownedTitle.objects.filter(owner=request.user.linked_ds)
     titles = []
     for title in owned:
         if title.title.version > title.version:
             titles.append(title)
     updates = len(titles)
+
     try:
         title = Title.objects.get(id=tid, public=True)
     except ObjectDoesNotExist:
         raise Http404()
+
     try:
         wishlisted = wishlistedTitle.objects.get(title=title, owner=request.user.linked_ds)
         wishlisted = True
     except ObjectDoesNotExist:
         wishlisted = False
+
     title.desc = title.desc.replace('\n', '<br>')
-    return render(request, "title.html", {"title": title.name, "WEBUI_NAME":WEBUI_NAME, "user": request.user, "app": title, "updates": updates, "wishlisted": wishlisted})
+
+    # Splitting the screenshot URLs by ' \ ' and removing empty strings
+    screenshots = [url.strip() for url in title.screenshot_merged_url.split('\\') if url.strip()]
+
+    return render(request, "title.html", {
+        "title": title.name,
+        "WEBUI_NAME": WEBUI_NAME,
+        "user": request.user,
+        "app": title,
+        "updates": updates,
+        "wishlisted": wishlisted,
+        "screenshots": screenshots
+    })
 
 def add_wishlist(request):
     id = request.GET.get("id")
@@ -194,13 +231,36 @@ def search(request):
         if title.title.version > title.version:
             titles.append(title)
     updates = len(titles)
-    if request.GET.get("query") == None:
-        return render(request, "search.html", {"title": "Search", "WEBUI_NAME":WEBUI_NAME, "user": request.user,"updates": updates})
-    if not request.GET.get("query"):
-        return render(request, "_error.html", {"title": "Error", "WEBUI_NAME":WEBUI_NAME, "user": request.user,"updates": updates, "message": "Nothing was put as the title name."})
+    
+    if request.method == "GET":
+        title_name = request.GET.get("title_name")
+        tid = request.GET.get("tid")
+        product_code = request.GET.get("product_code")
+        
+        if not title_name and not tid and not product_code:
+            return render(request, "search.html", {"title": "Search", "WEBUI_NAME":WEBUI_NAME, "user": request.user,"updates": updates})
+        
+        if (title_name and tid) or (title_name and product_code) or (tid and product_code):
+            return render(request, "_error.html", {"title": "Error", "WEBUI_NAME":WEBUI_NAME, "user": request.user,"updates": updates, "message": "Please fill in only one search field."})
+        
+        if title_name:
+            # Search by title name
+            searched = Title.objects.filter(name__icontains=title_name, public=True).order_by('-date')
+        elif tid:
+            # Search by TID
+            searched = Title.objects.filter(tid__icontains=tid, public=True).order_by('-date')
+        elif product_code:
+            # Search by product code
+            searched = Title.objects.filter(product_code__icontains=product_code, public=True).order_by('-date')
+
+        return render(request, "searchresult.html", {"title": "Search Results", "WEBUI_NAME": WEBUI_NAME, "user": request.user, "updates": updates, "results": searched})
+
+def random_title(request):
+    random_title = Title.objects.filter(public=True).order_by('?').first()
+    if random_title is None:
+        return HttpResponse("No titles available.")
     else:
-        searched = Title.objects.filter(name__icontains=request.GET.get("query"), public=True).order_by('-date')
-        return render(request, "searchresult.html", {"title": "Results for "+request.GET.get("query"), "WEBUI_NAME": WEBUI_NAME, "user": request.user, "updates": updates, "results": searched, "query": request.GET.get("query")})
+        return HttpResponseRedirect('/title/' + str(random_title.id))
 
 def err404(request, exception):
     return render(request, "404.html")

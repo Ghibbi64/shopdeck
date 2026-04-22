@@ -24,11 +24,11 @@ def download_tmd(tid, version):
         return "Error"
     try:
         owned = ownedTitle.objects.get(title=title, owner=ds)
+        if owned.version < title.version:
+            owned.version = title.version
+            owned.save()
     except ObjectDoesNotExist:
-        return "error"
-    if owned.version < title.version:
-        owned.version = title.version
-        owned.save()
+        print("title not owned")
     path = str(os.path.dirname(__file__))+"/cdn/"+str(tid)+"/tmd.bin"
     if not os.path.isfile(path):
         return "error"
