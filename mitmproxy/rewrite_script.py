@@ -7,6 +7,7 @@ URL_REWRITES = [
     # Nintendo eShop
     ("https://ecs.c.shop.nintendowifi.net",  f"https://{server_ip}:8000"),
     ("https://ninja.ctr.shop.nintendo.net",  f"https://{server_ip}:9000"),
+    ("https://nus.c.shop.nintendowifi.net",  f"https://{server_ip}:8000"),
     # BOSS/BGM redirect to local server
     #("https://npdl.cdn.nintendowifi.net/p01/nsa/AH3oZwrEbne6qHCO/BGM1/EU_BGM1", f"http://{server_ip}/BOSS/eshop/EU_BGM1"),
 ]
