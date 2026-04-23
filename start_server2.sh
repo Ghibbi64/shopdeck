@@ -1,4 +1,4 @@
 #!/bin/bash
 
 source .venv/bin/activate
-flask --app main run --cert ./192.168.1.1.pem --key ./192.168.1.1-key.pem -h 192.168.1.1 -p 8000 --debug
+flask --app main run --cert ./0.0.0.0.pem --key ./0.0.0.0-key.pem -h 0.0.0.0 -p 8000 --debug

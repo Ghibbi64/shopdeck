@@ -1,0 +1,22 @@
+[project]
+name = "shopdeck"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "cryptography>=42.0.0,<43.1",
+    "django==4.1.13",
+    "django-colorfield==0.8.0",
+    "django-extensions==3.2.1",
+    "django-jazzmin>=2.6.2",
+    "flask<=3.1.0",
+    "lxml>=6.1.0",
+    "mitmproxy==11.0.2",
+    "psycopg2-binary==2.9.9",
+    "pyctr==0.6.0",
+    "python-dateutil>=2.8.1",
+    "requests==2.31.0",
+    "werkzeug==3.0.0",
+    "xmltodict==0.13.0",
+]
