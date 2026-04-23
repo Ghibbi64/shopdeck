@@ -8,7 +8,7 @@ As the original team behind Shopdeck announced that they archived their repo, i 
 THIS IS STILL VERY MUCH IN WIP, PLEASE DON'T USE THIS RIGHT NOW
 - [x] Merge my first commit
 - [ ] Write a good wiki possibly
-- [ ] Idk
+- [ ] Rewrite the webui completly to make it more "eshop" like (will be fire)
 - [ ] Add better support for DLC and Items
 - [ ] Possibly add support for the Theme Shop
 
@@ -30,7 +30,7 @@ Shopdeck operates strictly within legal boundaries. We adhere to stringent polic
 
 ## Setup Instructions
 
-For comprehensive setup instructions, please refer to the [Wiki/Development Setup](https://github.com/Ghibbi64/shopdeck/wiki/) section of this repository.
+For comprehensive setup instructions, please refer to the [Wiki](https://github.com/Ghibbi64/shopdeck/wiki/) section of this repository.
 
 ## Credits 
 ### For the original repository
