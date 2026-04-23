@@ -1,8 +1,8 @@
+# Shopdeck: Your Nintendo 3DS eShop Replacement
+
 A personal continuation of the Shopdeck server (nothing really serious), based on Shopdeck by Aftendo and the fork made by Ghost Land Team.<br>
 As the original team behind Shopdeck announced that they archived their repo, i should remark that every update from now on is **completly separated from them**, so **DON'T** go in their discord asking questions about this.<br>
 **The author is not responsible for any misuse of this software by third parties.**
-
-# Shopdeck: Your Nintendo 3DS eShop Replacement
 
 ## Roadmap
 THIS IS STILL VERY MUCH IN WIP, PLEASE DON'T USE THIS RIGHT NOW
