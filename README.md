@@ -5,7 +5,7 @@ As the original team behind Shopdeck announced that they archived their repo, i 
 **The author is not responsible for any misuse of this software by third parties.**
 
 ## Roadmap
-THIS IS STILL VERY MUCH IN WIP, PLEASE DON'T USE THIS RIGHT NOW
+PROJECT STILL IN WIP, BUT USABLE NOW
 - [x] Merge my first commit
 - [ ] Write a good wiki possibly
 - [ ] Rewrite the webui completly to make it more "eshop" like (will be fire)
