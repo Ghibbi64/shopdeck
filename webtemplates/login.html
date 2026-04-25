@@ -1,11 +1,26 @@
 {% extends '_layout_form.html' %}
 {% block main %}
+<head>
+<style>
+    #typeUsernameX, #typePasswordX {
+        color: black;
+    }
+    .form-white .form-label {
+        color: black !important;
+    }
+
+    #btn_submit{
+      background-color: #ff8416;
+      color: white;
+    }
+</style>
+</head>
 <form method="POST">
 {% csrf_token %}
 <div class="mb-md-5 mt-md-4 pb-5">
 
     <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
-    <p class="text-white-50 mb-2">Please login to access the Web UI.</p>
+    <p class="-50 mb-2">Please login to access the Web UI.</p>
     {% if message %}
     <p style="color: red;">{{ message }}</p>
     {% endif %}
@@ -22,7 +37,7 @@
       <div class="form-notch"><div class="form-notch-leading" style="width: 9px;"></div><div class="form-notch-middle" style="width: 64.8px;"></div><div class="form-notch-trailing"></div></div>
     </div>
 
-    <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
+    <button id ="btn_submit"class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
 
   </div>
 </form>

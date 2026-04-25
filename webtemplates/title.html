@@ -81,12 +81,12 @@
         }
 
         .btn-danger {
-            background-color: #dc3545; 
+            background-color: #ff8416; 
             color: #fff;
         }
 
         .btn-danger:hover {
-            background-color: #bb2d3b; 
+            background-color: #ff8416; 
         }
 
         .btn-warning {
@@ -122,7 +122,7 @@
                 {% if wishlisted %}
                 <a class="btn btn-danger" href="/wishlist/remove?id={{ app.id }}&redirect=/title/{{ app.id }}"><li class="fa-solid fa-remove"></li> Remove from wishlist</a>
                 {% else %}
-                <a class="btn btn-warning" href="/wishlist/add?id={{ app.id }}"><li class="fa-solid fa-add"></li> Add to wishlist</a>
+                <a class="btn btn-danger" href="/wishlist/add?id={{ app.id }}"><li class="fa-solid fa-add"></li> Add to wishlist</a>
                 {% endif %}
                 <h2>Price: {{ app.price }} Credit</h2>
                 <h4><i>{% if app.is_not_available %}Not available{% else %}Available now{% endif %}</i></h4>
