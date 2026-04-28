@@ -16,6 +16,10 @@ PROJECT STILL IN WIP, BUT USABLE NOW
 
 Welcome to Shopdeck, the unofficial replacement server for the Nintendo 3DS eShop. Offering an alternative source for accessing digital content, Shopdeck aims to provide a seamless experience for 3DS users. Please note that this project does not cover the Wii U eShop.
 
+## Setup Instructions
+
+For comprehensive setup instructions, please refer to the **[Wiki](https://github.com/Ghibbi64/shopdeck/wiki/)** section of this repository.
+
 ## Anti-Piracy Statement
 
 Shopdeck unequivocally does not support piracy. We are committed to maintaining ethical standards and urge users to respect intellectual property rights.
@@ -27,10 +31,6 @@ Shopdeck is crafted with modern Python 3.12 and leverages the power of two web f
 ## Legality and Compliance
 
 Shopdeck operates strictly within legal boundaries. We adhere to stringent policies and ensure that our implementation does not infringe upon Nintendo's proprietary rights. The base tickets used by Shopdeck contain no data about legitimate titles.
-
-## Setup Instructions
-
-For comprehensive setup instructions, please refer to the [Wiki](https://github.com/Ghibbi64/shopdeck/wiki/) section of this repository.
 
 ## Credits 
 ### For the original repository
